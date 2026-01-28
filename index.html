@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Channel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+
+<body>
+    <div class="glow"></div>
+    <header>
+        <a href="index.html" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            VidFlow
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="watch-layout">
+            <div class="main-player">
+                <div class="video-wrapper">
+                    <video id="video" controls autoplay></video>
+                    <button id="rotateBtn" class="rotate-btn" title="Rotate Video">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M7.11 8.53L5.79 7.21C2.46 10.54 2.46 15.96 5.79 19.29C9.12 22.62 14.54 22.62 17.87 19.29C21.2 15.96 21.2 10.54 17.87 7.21L16.55 8.53C19.16 11.14 19.16 15.36 16.55 17.97C13.94 20.58 9.72 20.58 7.11 17.97C4.5 15.36 4.5 11.14 7.11 8.53Z" />
+                            <path d="M12.44 3.77L10.67 5.54L14.21 9.08L17.75 5.54L15.98 3.77L14.21 2L12.44 3.77Z" />
+                        </svg>
+                    </button>
+                </div>
+                <!-- Video Info -->
+                <div class="video-info">
+                    <h1 class="video-title" id="vidTitle">Loading...</h1>
+                    <div class="card-meta" id="vidDate"></div>
+                    <br>
+                    <div class="video-desc" id="vidDesc"></div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <h3 class="sidebar-title">Related Videos</h3>
+                <div id="relatedList">
+                    <!-- Related videos injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let videoId = urlParams.get('v');
+        const video = document.getElementById('video');
+        const rotateBtn = document.getElementById('rotateBtn');
+        let currentRotation = 0;
+
+        function applyRotation(deg) {
+            video.style.transform = `rotate(${deg}deg)`;
+            // Adjust scale to fit if necessary (simple implementation for now)
+            if (deg === 90 || deg === 270) {
+                const width = video.videoWidth || video.clientWidth;
+                const height = video.videoHeight || video.clientHeight;
+                if (width && height) {
+                    const scale = Math.min(video.clientHeight / width, video.clientWidth / height);
+                    // video.style.transform += ` scale(${scale})`; // Optional: fit within container
+                }
+            }
+        }
+
+        function loadRotation(id) {
+            const saved = localStorage.getItem(`vidflow-rotation-${id}`);
+            if (saved) {
+                currentRotation = parseInt(saved, 10);
+            } else {
+                currentRotation = 0;
+            }
+            applyRotation(currentRotation);
+        }
+
+        rotateBtn.addEventListener('click', () => {
+            currentRotation = (currentRotation + 90) % 360;
+            applyRotation(currentRotation);
+            if (videoId) {
+                localStorage.setItem(`vidflow-rotation-${videoId}`, currentRotation);
+            }
+        });
+
+
+        // Logic: 
+        // 1. If videoData exists...
+        // 2. If videoId provides, find it.
+        // 3. If NO videoId, default to the FIRST (latest) video.
+
+        if (window.videoData && window.videoData.length > 0) {
+
+            let currentVideo = null;
+            if (videoId) {
+                currentVideo = window.videoData.find(v => v.id === videoId);
+            }
+
+            // Default to latest if not found or not provided
+            if (!currentVideo) {
+                currentVideo = window.videoData[0];
+                videoId = currentVideo.id;
+                // Optional: update URL without reload?
+                // history.replaceState(null, '', `?v=${videoId}`);
+            }
+
+            // Update UI
+            document.title = `${currentVideo.title} - VidFlow`;
+            document.getElementById('vidTitle').textContent = currentVideo.title;
+            document.getElementById('vidDesc').textContent = currentVideo.description;
+            document.getElementById('vidDate').textContent = new Date(currentVideo.date).toLocaleDateString();
+
+            // Load rotation preference
+            loadRotation(videoId);
+
+            // Play
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(currentVideo.playlist);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = currentVideo.playlist;
+            }
+
+            // Render Sidebar
+            const relatedList = document.getElementById('relatedList');
+            window.videoData.forEach(v => {
+                const isAssert = (v.id === videoId) ? 'active' : '';
+
+                const link = document.createElement('a');
+                link.href = `index.html?v=${v.id}`; // Point to index now
+                link.className = `related-card ${isAssert}`;
+                link.innerHTML = `
+                    <div class="related-thumb">
+                        <img src="${v.thumbnail}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhlaWdodD0iMzYwIiB2aWV3Qm94PSIwIDAgNjQwIDM2MCIgZmlsbD0iIzMzMyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgLz48L3N2Zz4='">
+                    </div>
+                    <div class="related-info">
+                        <div class="related-title">${v.title}</div>
+                        <div class="card-meta">${new Date(v.date).toLocaleDateString()}</div>
+                    </div>
+                `;
+                relatedList.appendChild(link);
+            });
+
+        } else {
+            document.getElementById('vidTitle').textContent = "No videos found.";
+            document.getElementById('vidDesc').textContent = "Upload a video to get started!";
+        }
+    </script>
+</body>
+
+</html>

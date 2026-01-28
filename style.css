@@ -1,0 +1,420 @@
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --accent-start: #d946ef;
+    /* Fuchsia */
+    --accent-end: #ec4899;
+    /* Pink */
+    /* Pure Neutral Glass - No Blue Tint */
+    --glass-bg: rgba(20, 20, 20, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    /* White border, not blue-white */
+    --hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Full Screen Layout Fixes */
+body {
+    margin: 0;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Background: Pure Black with Neural Spotlight */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Subtle vertical spotlight, purely neutral */
+    background: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000000 70%);
+    z-index: -1;
+}
+
+/* Accent Glow: Concentrated Pink/Purple, Positioned behind Video */
+.glow {
+    position: fixed;
+    width: 800px;
+    height: 600px;
+    /* Clean Pink Glow */
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, rgba(0, 0, 0, 0) 60%);
+    top: 50%;
+    left: 40%;
+    /* Center behind player */
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Play Icon */
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(217, 70, 239, 0.3);
+    /* Pink shadow */
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.video-card:hover .play-icon,
+.related-card:hover .play-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Sidebar List */
+.sidebar-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.related-card {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.related-card:hover {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+}
+
+.related-card.active {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+.video-title {
+    font-size: 1.75rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    /* Gradient Text */
+    background: linear-gradient(to right, var(--accent-start), var(--accent-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    /* Fallback */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+/* Header: Pure Glass, No Background Color */
+header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(0, 0, 0, 0.0);
+    /* Transparent */
+    backdrop-filter: blur(10px);
+    /* Just Blur */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 100;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    /* Take remaining height */
+    overflow: hidden;
+    /* Manage internal scroll */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Gallery Scroll (Index Page) */
+.gallery-scroll {
+    overflow-y: auto;
+    height: 100%;
+    padding-right: 0.5rem;
+}
+
+/* Watch Page Layout - Cinema Mode */
+.watch-layout {
+    display: flex;
+    gap: 1.5rem;
+    /* Reduced gap */
+    height: 100%;
+    overflow: hidden;
+}
+
+.main-player {
+    flex: 1;
+    /* Take all remaining space */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Video Wrapper: Enforce 16:9 but allows scaling within container */
+.video-wrapper {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    flex-shrink: 0;
+    flex-shrink: 0;
+    margin-bottom: 1rem;
+}
+
+.rotate-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.rotate-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.rotate-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Ensure full video is seen */
+}
+
+/* Video Title & Info (Clean) */
+.video-info {
+    padding: 0 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.video-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+}
+
+.video-desc {
+    color: #94a3b8;
+    line-height: 1.6;
+    font-size: 1rem;
+    max-width: 800px;
+}
+
+/* Sidebar - Deep Glass with Shadow */
+.sidebar {
+    width: 400px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    background: rgba(18, 18, 18, 0.6);
+    /* Dark Glass */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    /* Deep Shadow */
+    padding: 1.5rem;
+}
+
+/* Sidebar Title */
+.sidebar-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    padding-left: 0.75rem;
+    border-left: 4px solid var(--accent-end);
+    line-height: 1.2;
+    text-transform: capitalize;
+    text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+    /* Neon Text Shadow */
+}
+
+.related-card {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.related-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
+    /* Subtly move left */
+}
+
+.related-card.active {
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.15) 0%, transparent 100%);
+    border-left: 2px solid var(--accent-end);
+    box-shadow: inset 0 0 20px rgba(236, 72, 153, 0.05);
+}
+
+.related-thumb {
+    width: 150px;
+    height: 84px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    /* Thumb shadow */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.related-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.related-card:hover .related-thumb img {
+    transform: scale(1.05);
+}
+
+.related-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 0.25rem;
+}
+
+.related-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    color: #f1f5f9;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-meta {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .watch-layout {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    body {
+        overflow: auto;
+        height: auto;
+        display: block;
+    }
+
+    .container {
+        height: auto;
+        overflow: visible;
+        padding: 1rem;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        padding: 0;
+    }
+
+    .video-wrapper {
+        margin-bottom: 1.5rem;
+    }
+}
